@@ -15,6 +15,16 @@ interface AuthStore {
   logout: () => void;
 }
 
+function syncCookie(isAuthenticated: boolean) {
+  if (typeof document !== "undefined") {
+    if (isAuthenticated) {
+      document.cookie = `finpilot-auth=1; path=/; max-age=604800; SameSite=Lax`;
+    } else {
+      document.cookie = `finpilot-auth=; path=/; max-age=0; SameSite=Lax`;
+    }
+  }
+}
+
 export const useAuthStore = create<AuthStore>()(
   persist(
     (set) => ({
@@ -24,8 +34,10 @@ export const useAuthStore = create<AuthStore>()(
       refresh_token: null,
       is_authenticated: false,
 
-      setAuth: (user, business, access_token, refresh_token) =>
-        set({ user, business, access_token, refresh_token, is_authenticated: true }),
+      setAuth: (user, business, access_token, refresh_token) => {
+        syncCookie(true);
+        set({ user, business, access_token, refresh_token, is_authenticated: true });
+      },
 
       setTokens: (access_token, refresh_token) =>
         set({ access_token, refresh_token }),
@@ -33,12 +45,19 @@ export const useAuthStore = create<AuthStore>()(
       updateUser: (partial) =>
         set((state) => ({ user: state.user ? { ...state.user, ...partial } : null })),
 
-      logout: () =>
-        set({ user: null, business: null, access_token: null, refresh_token: null, is_authenticated: false }),
+      logout: () => {
+        syncCookie(false);
+        set({ user: null, business: null, access_token: null, refresh_token: null, is_authenticated: false });
+      },
     }),
     {
       name: "finpilot-auth",
       storage: createJSONStorage(() => localStorage),
+      onRehydrateStorage: () => (state) => {
+        if (state?.is_authenticated) {
+          syncCookie(true);
+        }
+      },
       partialize: (state) => ({
         user: state.user,
         business: state.business,

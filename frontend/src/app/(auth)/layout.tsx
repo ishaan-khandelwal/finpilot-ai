@@ -5,17 +5,16 @@ export const metadata: Metadata = {
     default: "Sign In",
     template: "%s | FinPilot AI",
   },
+  description: "Autonomous Finance Controller for Modern Small Businesses & CFOs",
 };
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative min-h-screen overflow-hidden bg-background">
+    <div className="relative min-h-screen overflow-hidden bg-background text-foreground flex flex-col justify-center items-center py-10 px-4 sm:px-6 lg:px-8">
+      {/* Ambient background glows */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        {/* Cyan glow top-left */}
-        <div className="absolute -left-[10%] -top-[20%] h-[500px] w-[500px] rounded-full bg-primary/10 blur-[120px]" />
-        {/* Violet glow bottom-right */}
-        <div className="absolute -bottom-[10%] -right-[10%] h-[450px] w-[450px] rounded-full bg-accent/10 blur-[100px]" />
-        {/* Subtle dot grid */}
+        <div className="absolute -left-[15%] -top-[20%] h-[600px] w-[600px] rounded-full bg-primary/10 blur-[140px]" />
+        <div className="absolute -bottom-[15%] -right-[15%] h-[550px] w-[550px] rounded-full bg-accent/10 blur-[130px]" />
         <div
           className="absolute inset-0 opacity-[0.03]"
           style={{
@@ -24,14 +23,19 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </div>
-      <div className="relative flex min-h-screen flex-col items-center justify-center px-4 py-12">
-        <div className="mb-8 flex flex-col items-center gap-2">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary shadow-[0_0_24px_hsl(190_96%_52%/0.5)]">
-            <span className="text-sm font-bold tracking-tight text-primary-foreground">FP</span>
-          </div>
-          <span className="text-xl font-semibold tracking-tight">FinPilot <span className="text-primary">AI</span></span>
-        </div>
+
+      {/* Main Container */}
+      <div className="relative z-10 w-full max-w-5xl flex flex-col items-center">
         {children}
+      </div>
+
+      {/* Footer footer links */}
+      <div className="relative z-10 mt-8 text-center text-xs text-muted-foreground flex items-center gap-4">
+        <span>© 2026 FinPilot AI</span>
+        <span>•</span>
+        <span>Enterprise 256-bit AES</span>
+        <span>•</span>
+        <span>GST & Bank Reconciled</span>
       </div>
     </div>
   );
