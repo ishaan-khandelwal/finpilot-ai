@@ -8,7 +8,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 
-from app.api.v1 import auth, businesses, dashboard
+from app.api.v1 import auth, businesses, dashboard, documents, invoices, transactions
 from app.core.config import settings
 from app.core.redis import close_redis, get_redis
 
@@ -60,6 +60,9 @@ async def global_exception_handler(request: Request, exc: Exception):
 app.include_router(auth.router, prefix="/api/v1")
 app.include_router(businesses.router, prefix="/api/v1")
 app.include_router(dashboard.router, prefix="/api/v1")
+app.include_router(documents.router, prefix="/api/v1")
+app.include_router(invoices.router, prefix="/api/v1")
+app.include_router(transactions.router, prefix="/api/v1")
 
 
 @app.get("/health", tags=["system"])

@@ -49,6 +49,9 @@ export const API_ROUTES = {
     CONVERSATIONS: "/api/v1/chat/conversations",
     WS: (conversationId: string) => `/api/v1/chat/ws/${conversationId}`,
   },
+  COPILOT: {
+    CHAT: "/api/v1/copilot/chat",
+  },
   REPORTS: {
     BASE: "/api/v1/reports",
     GENERATE: "/api/v1/reports/generate",
