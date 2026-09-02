@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { authService } from "@/services/authService";
 import { ROUTES } from "@/constants/routes";
 import { cn } from "@/lib/utils";
@@ -21,6 +21,14 @@ import {
 } from "lucide-react";
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-sm text-muted-foreground">Loading sign in...</div>}>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const from = searchParams.get("from") ?? ROUTES.DASHBOARD;

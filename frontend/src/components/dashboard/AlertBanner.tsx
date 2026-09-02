@@ -44,7 +44,13 @@ export function AlertBanner({ alerts }: AlertBannerProps) {
               )}
             </div>
             <button
-              onClick={() => setDismissed((prev) => new Set([...prev, originalIndex]))}
+              onClick={() =>
+                setDismissed((prev) => {
+                  const next = new Set(prev);
+                  next.add(originalIndex);
+                  return next;
+                })
+              }
               className="shrink-0 rounded p-0.5 text-muted-foreground transition-colors hover:text-foreground"
               aria-label="Dismiss alert"
             >
