@@ -24,7 +24,7 @@ export default function LoginPage() {
 
     try {
       await authService.login({ email, password });
-      router.push(from);
+      router.push(from as any);
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ??

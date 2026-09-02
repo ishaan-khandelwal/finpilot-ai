@@ -101,17 +101,20 @@ export function CashFlowChart() {
           <ResponsiveContainer width="100%" height={210}>
             <AreaChart data={data.points} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
               <defs>
-                <linearGradient id="gradInflow" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="hsl(142, 71%, 45%)" stopOpacity={0.15} />
-                  <stop offset="95%" stopColor="hsl(142, 71%, 45%)" stopOpacity={0} />
-                </linearGradient>
-                <linearGradient id="gradOutflow" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="hsl(0, 72%, 51%)" stopOpacity={0.15} />
-                  <stop offset="95%" stopColor="hsl(0, 72%, 51%)" stopOpacity={0} />
-                </linearGradient>
+                {/* Electric Cyan for balance */}
                 <linearGradient id="gradBalance" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="hsl(243, 75%, 59%)" stopOpacity={0.2} />
-                  <stop offset="95%" stopColor="hsl(243, 75%, 59%)" stopOpacity={0} />
+                  <stop offset="5%"  stopColor="hsl(190,96%,52%)" stopOpacity={0.25} />
+                  <stop offset="95%" stopColor="hsl(190,96%,52%)" stopOpacity={0} />
+                </linearGradient>
+                {/* Deep Violet for inflows */}
+                <linearGradient id="gradInflow" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%"  stopColor="hsl(262,83%,64%)" stopOpacity={0.2} />
+                  <stop offset="95%" stopColor="hsl(262,83%,64%)" stopOpacity={0} />
+                </linearGradient>
+                {/* Muted red for outflows */}
+                <linearGradient id="gradOutflow" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%"  stopColor="hsl(0,72%,56%)" stopOpacity={0.12} />
+                  <stop offset="95%" stopColor="hsl(0,72%,56%)" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
@@ -131,35 +134,38 @@ export function CashFlowChart() {
                 width={52}
               />
               <Tooltip content={<CustomTooltip />} />
+              {/* Cyan — running balance (primary KPI) */}
               <Area
                 type="monotone"
                 dataKey="balance"
                 name="Balance"
-                stroke="hsl(243, 75%, 59%)"
-                strokeWidth={2}
+                stroke="hsl(190,96%,52%)"
+                strokeWidth={2.5}
                 fill="url(#gradBalance)"
                 dot={false}
-                activeDot={{ r: 4, strokeWidth: 0 }}
+                activeDot={{ r: 4, fill: "hsl(190,96%,52%)", strokeWidth: 0 }}
               />
+              {/* Violet — inflows */}
               <Area
                 type="monotone"
                 dataKey="inflows"
                 name="Inflows"
-                stroke="hsl(142, 71%, 45%)"
+                stroke="hsl(262,83%,64%)"
                 strokeWidth={1.5}
                 fill="url(#gradInflow)"
                 dot={false}
-                activeDot={{ r: 3, strokeWidth: 0 }}
+                activeDot={{ r: 3, fill: "hsl(262,83%,64%)", strokeWidth: 0 }}
               />
+              {/* Muted red — outflows */}
               <Area
                 type="monotone"
                 dataKey="outflows"
                 name="Outflows"
-                stroke="hsl(0, 72%, 51%)"
+                stroke="hsl(0,72%,56%)"
                 strokeWidth={1.5}
                 fill="url(#gradOutflow)"
                 dot={false}
-                activeDot={{ r: 3, strokeWidth: 0 }}
+                activeDot={{ r: 3, fill: "hsl(0,72%,56%)", strokeWidth: 0 }}
               />
             </AreaChart>
           </ResponsiveContainer>

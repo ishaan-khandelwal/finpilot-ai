@@ -1,6 +1,5 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   async rewrites() {
     return [
       {
@@ -11,9 +10,6 @@ const nextConfig: NextConfig = {
   },
   images: {
     remotePatterns: [],
-  },
-  experimental: {
-    typedRoutes: true,
   },
 };
 
