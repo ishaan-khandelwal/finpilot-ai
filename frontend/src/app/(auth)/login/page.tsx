@@ -40,6 +40,8 @@ function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [forgotOpen, setForgotOpen] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotSent, setForgotSent] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -387,7 +389,7 @@ function LoginForm() {
       {forgotOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4"
-          onClick={() => setForgotOpen(false)}
+          onClick={() => { setForgotOpen(false); setForgotSent(false); }}
         >
           <div
             className="w-full max-w-sm rounded-2xl border border-border bg-card p-6 shadow-2xl space-y-4 animate-fade-in"
@@ -397,33 +399,44 @@ function LoginForm() {
               <ShieldCheck className="h-5 w-5" />
               <h3 className="font-semibold text-foreground text-sm">Reset Password</h3>
             </div>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              In self-hosted / development mode, you can log in directly with the 1-Click Demo account, or enter your registered business email below to receive a reset link.
-            </p>
-            <input
-              type="email"
-              placeholder="you@company.com"
-              defaultValue={email}
-              className="w-full rounded-lg border border-input bg-background px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-none"
-            />
+
+            {forgotSent ? (
+              <div className="rounded-lg bg-success/10 border border-success/20 px-4 py-3 text-xs text-success flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 shrink-0" />
+                <span>Password reset instructions sent to <strong>{forgotEmail}</strong>. Check your inbox or use the 1-Click Demo login.</span>
+              </div>
+            ) : (
+              <>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  In self-hosted / development mode, you can log in directly with the 1-Click Demo account, or enter your registered business email below to receive a reset link.
+                </p>
+                <input
+                  type="email"
+                  placeholder="you@company.com"
+                  value={forgotEmail}
+                  onChange={(e) => setForgotEmail(e.target.value)}
+                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-none"
+                />
+              </>
+            )}
+
             <div className="flex items-center justify-end gap-2 pt-2">
               <button
                 type="button"
-                onClick={() => setForgotOpen(false)}
+                onClick={() => { setForgotOpen(false); setForgotSent(false); }}
                 className="rounded-lg px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground"
               >
-                Cancel
+                {forgotSent ? "Close" : "Cancel"}
               </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setForgotOpen(false);
-                  alert("Password reset instructions sent to your email (or use 1-Click Demo Access).");
-                }}
-                className="rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90"
-              >
-                Send Instructions
-              </button>
+              {!forgotSent && (
+                <button
+                  type="button"
+                  onClick={() => setForgotSent(true)}
+                  className="rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90"
+                >
+                  Send Instructions
+                </button>
+              )}
             </div>
           </div>
         </div>

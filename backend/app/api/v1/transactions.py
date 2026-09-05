@@ -1,10 +1,12 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query
+from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_business_id, get_current_user
 from app.core.database import get_db
+from app.models.transaction import Transaction
 from app.models.user import User
 from app.repositories.transaction_repo import TransactionRepository
 from app.schemas.common import PaginatedResponse
@@ -22,21 +24,26 @@ async def list_transactions(
     _: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    from sqlalchemy import and_, select
-    from app.models.transaction import Transaction
+    offset = (page - 1) * limit
 
-    repo = TransactionRepository(db)
-    q = select(Transaction).where(Transaction.business_id == business_id)
+    # Build filter conditions
+    filters = [Transaction.business_id == business_id]
     if type:
-        q = q.where(Transaction.type == type)
-    q = q.order_by(Transaction.transaction_date.desc()).limit(limit).offset((page - 1) * limit)
+        filters.append(Transaction.type == type)
+
+    # Paginated query
+    q = (
+        select(Transaction)
+        .where(and_(*filters))
+        .order_by(Transaction.transaction_date.desc(), Transaction.created_at.desc())
+        .limit(limit)
+        .offset(offset)
+    )
     result = await db.execute(q)
     items = list(result.scalars().all())
 
-    from sqlalchemy import func
-    count_q = select(func.count()).select_from(Transaction).where(Transaction.business_id == business_id)
-    if type:
-        count_q = count_q.where(Transaction.type == type)
+    # Count query
+    count_q = select(func.count()).select_from(Transaction).where(and_(*filters))
     total_result = await db.execute(count_q)
     total = total_result.scalar_one()
     pages = max(1, (total + limit - 1) // limit)

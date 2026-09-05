@@ -8,7 +8,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 
-from app.api.v1 import auth, businesses, dashboard, documents, invoices, transactions
+from app.api.v1 import auth, businesses, copilot, dashboard, documents, forecasts, invoices, reconciliation, reports, transactions
 from app.core.config import settings
 from app.core.redis import close_redis, get_redis
 
@@ -20,9 +20,16 @@ limiter = Limiter(key_func=get_remote_address, default_limits=[f"{settings.rate_
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     log.info("startup", env=settings.app_env)
-    await get_redis()
+    try:
+        await get_redis()
+        log.info("redis.connected")
+    except Exception as exc:
+        log.warning("redis.unavailable", error=str(exc))
     yield
-    await close_redis()
+    try:
+        await close_redis()
+    except Exception:
+        pass
     log.info("shutdown")
 
 
@@ -59,9 +66,13 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 app.include_router(auth.router, prefix="/api/v1")
 app.include_router(businesses.router, prefix="/api/v1")
+app.include_router(copilot.router, prefix="/api/v1")
 app.include_router(dashboard.router, prefix="/api/v1")
 app.include_router(documents.router, prefix="/api/v1")
+app.include_router(forecasts.router, prefix="/api/v1")
 app.include_router(invoices.router, prefix="/api/v1")
+app.include_router(reconciliation.router, prefix="/api/v1")
+app.include_router(reports.router, prefix="/api/v1")
 app.include_router(transactions.router, prefix="/api/v1")
 
 

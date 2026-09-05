@@ -63,7 +63,7 @@ export function Sidebar() {
                         "flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-all duration-150",
                         active
                           ? "border-l-2 border-primary bg-primary/10 pl-[10px] text-primary"
-                          : "text-muted-foreground hover:bg-primary/8 hover:text-primary"
+                          : "text-muted-foreground hover:bg-primary/10 hover:text-primary"
                       )}
                     >
                       <Icon

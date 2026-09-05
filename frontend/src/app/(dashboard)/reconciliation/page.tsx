@@ -3,13 +3,12 @@
 import { Topbar } from "@/components/layout/Topbar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { BarChart3, CheckCircle2, GitMerge, Play, RefreshCw } from "lucide-react";
+import { BarChart3, GitMerge, Play, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import api from "@/lib/api";
 import { cn, formatCurrency, formatDate } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
-import { API_ROUTES } from "@/constants/routes";
+import { useAuthStore } from "@/store/authStore";
 
 interface ReconciliationMatch {
   id: string;
@@ -31,29 +30,53 @@ const STATUS_CONFIG: Record<string, { label: string; variant: "success" | "warni
   pending:    { label: "Pending",    variant: "muted" },
 };
 
+const DEMO_MATCHES: ReconciliationMatch[] = [
+  { id: "match-1", invoice_id: "inv-3", transaction_id: "tx-5", match_type: "exact_match", confidence_score: 0.99, status: "matched", matched_amount: 150000, discrepancy_amount: 0, notes: null, matched_at: "2026-08-25T16:05:00Z" },
+  { id: "match-2", invoice_id: "inv-4", transaction_id: "tx-2", match_type: "exact_match", confidence_score: 0.98, status: "matched", matched_amount: 28400, discrepancy_amount: 0, notes: null, matched_at: "2026-08-29T14:40:00Z" },
+  { id: "match-3", invoice_id: "inv-5", transaction_id: "tx-3", match_type: "fuzzy_match", confidence_score: 0.87, status: "matched", matched_amount: 320000, discrepancy_amount: 0, notes: "Amount matched via NEFT reference", matched_at: "2026-08-28T12:00:00Z" },
+  { id: "match-4", invoice_id: "inv-1", transaction_id: null, match_type: "unmatched", confidence_score: 0, status: "exception", matched_amount: 78500, discrepancy_amount: 78500, notes: "No corresponding bank debit found", matched_at: "2026-09-01T10:00:00Z" },
+  { id: "match-5", invoice_id: "inv-2", transaction_id: null, match_type: "partial_match", confidence_score: 0.65, status: "pending", matched_amount: 46500, discrepancy_amount: 46500, notes: "Waiting for next settlement", matched_at: "2026-09-01T11:00:00Z" },
+];
+
 export default function ReconciliationPage() {
   const qc = useQueryClient();
   const [runStatus, setRunStatus] = useState<string | null>(null);
+  const [demoMatches, setDemoMatches] = useState<ReconciliationMatch[]>(DEMO_MATCHES);
+  const isDemo = useAuthStore((s) => s.access_token)?.startsWith("demo-");
 
-  const { data: matches, isLoading } = useQuery({
+  const { data: apiMatches, isLoading } = useQuery({
     queryKey: ["reconciliation", "matches"],
     queryFn: async () => {
+      const api = (await import("@/lib/api")).default;
+      const { API_ROUTES } = await import("@/constants/routes");
       const { data } = await api.get<ReconciliationMatch[]>(API_ROUTES.RECONCILIATION.MATCHES);
       return data;
     },
+    enabled: !isDemo,
   });
+
+  const matches = isDemo ? demoMatches : apiMatches;
 
   const runMutation = useMutation({
     mutationFn: async () => {
+      if (isDemo) {
+        await new Promise((r) => setTimeout(r, 1500));
+        return { task_id: `task-demo-${Date.now()}` };
+      }
+      const api = (await import("@/lib/api")).default;
+      const { API_ROUTES } = await import("@/constants/routes");
       const { data } = await api.post(API_ROUTES.RECONCILIATION.RUN);
       return data;
     },
     onSuccess: (data) => {
-      setRunStatus(`Reconciliation job queued (Task: ${data.task_id})`);
-      setTimeout(() => {
+      setRunStatus(`Reconciliation complete! (Task: ${data.task_id})`);
+      if (isDemo) {
+        // Mark pending items as matched in demo
+        setDemoMatches((prev) => prev.map((m) => m.status === "pending" ? { ...m, status: "matched", confidence_score: 0.91 } : m));
+      } else {
         qc.invalidateQueries({ queryKey: ["reconciliation"] });
-        setRunStatus(null);
-      }, 3000);
+      }
+      setTimeout(() => setRunStatus(null), 4000);
     },
   });
 
@@ -65,6 +88,7 @@ export default function ReconciliationPage() {
         pending: matches.filter((m) => m.status === "pending").length,
       }
     : null;
+
 
   return (
     <div className="flex h-full flex-col">

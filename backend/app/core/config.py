@@ -9,17 +9,18 @@ class Settings(BaseSettings):
         env_file=".env",
         env_file_encoding="utf-8",
         case_sensitive=False,
+        extra="ignore",
     )
 
     app_name: str = "FinPilot AI"
     app_env: Literal["development", "staging", "production"] = "development"
-    secret_key: str
+    secret_key: str = "dev-secret-key-change-in-production-abc123xyz"
     access_token_expire_minutes: int = 15
     refresh_token_expire_days: int = 7
-    allowed_origins: list[str] = ["http://localhost:3000"]
+    allowed_origins: list[str] = ["http://localhost:3000", "http://localhost"]
 
-    database_url: str
-    redis_url: str
+    database_url: str = "postgresql+asyncpg://finpilot:finpilot_secret@localhost:5432/finpilot"
+    redis_url: str = "redis://localhost:6379/0"
     redis_password: str = ""
 
     upload_dir: str = "./uploads"
@@ -29,8 +30,8 @@ class Settings(BaseSettings):
     embedding_model: str = "models/embedding-001"
     gemini_model: str = "gemini-1.5-pro"
 
-    celery_broker_url: str
-    celery_result_backend: str
+    celery_broker_url: str = "redis://localhost:6379/1"
+    celery_result_backend: str = "redis://localhost:6379/2"
 
     rate_limit_per_minute: int = 100
 

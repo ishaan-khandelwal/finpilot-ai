@@ -11,7 +11,7 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Inter", ...fontFamily.sans],
+        sans: ["var(--font-inter)", ...fontFamily.sans],
         mono: ["JetBrains Mono", ...fontFamily.mono],
       },
       colors: {
